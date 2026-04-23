@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moonshot Job Fit Self-Assessment | Am I a Fit?</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+    .container { max-width: 860px; margin: 0 auto; }
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #64748b;
+      font-size: 1rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #6366f1;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #ede9fe;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-row.single { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 0.8rem; font-weight: 600; color: #374151; }
+    input[type="text"], textarea, select {
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: #1a1a2e;
+      background: #fafafa;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #6366f1;
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 100px; }
+    .scoring-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .score-card {
+      background: #f8f7ff;
+      border: 1.5px solid #ede9fe;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .score-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #4c1d95;
+      margin-bottom: 4px;
+    }
+    .score-sublabel {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .score-input-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    input[type="range"] {
+      flex: 1;
+      accent-color: #6366f1;
+      cursor: pointer;
+    }
+    .score-value {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #6366f1;
+      min-width: 28px;
+      text-align: center;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border: none;
+      padding: 14px 40px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+    .btn-primary:hover { opacity: 0.93; transform: translateY(-1px); }
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1.5px solid #e2e8f0;
+      padding: 10px 24px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: #e2e8f0; }
+    #results { display: none; }
+    .result-header {
+      text-align: center;
+      padding: 24px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
+    .result-header.strong-yes { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+    .result-header.yes { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+    .result-header.maybe { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+    .result-header.no { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+    .result-header.strong-no { background: linear-gradient(135deg, #7f1d1d, #991b1b); color: white; }
+    .result-score {
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .result-label {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .result-sublabel {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    .breakdown-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .dim-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+      border-left: 4px solid #6366f1;
+    }
+    .dim-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+    .dim-score-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dim-bar {
+      flex: 1;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .dim-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    }
+    .dim-score-num {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #6366f1;
+      min-width: 28px;
+    }
+    .strengths-concerns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .sc-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    }
+    .sc-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .sc-title.strengths { color: #10b981; }
+    .sc-title.concerns { color: #ef4444; }
+    .sc-item {
+      font-size: 0.85rem;
+      color: #374151;
+      padding: 6px 0;
+      border-bottom: 1px solid #f1f5f9;
+      line-height: 1.4;
+    }
+    .sc-item:last-child { border-bottom: none; }
+    .next-steps-card {
+      background: linear-gradient(135deg, #ede9fe, #e0e7ff);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .next-steps-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #4c1d95;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .next-steps-text {
+      font-size: 0.9rem;
+      color: #3730a3;
+      line-height: 1.6;
+    }
+    .actions-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    @media (max-width: 640px) {
+      .form-row { grid-template-columns: 1fr; }
+      .scoring-grid { grid-template-columns: 1fr; }
+      .breakdown-grid { grid-template-columns: 1fr; }
+      .strengths-concerns { grid-template-columns: 1fr; }
+      header h1 { font-size: 1.5rem; }
+    }
+    .weight-note {
+      font-size: 0.72rem;
+      color: #9ca3af;
+      font-style: italic;
+      margin-top: 2px;
+    }
+    .honesty-tip {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      color: #78350f;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Moonshot Job Fit Self-Assessment</h1>
+      <p>Score yourself honestly against a role — before you apply, or as you prepare.</p>
+    </header>
+
+    <div id="inputSection">
+      <!-- Job Info -->
+      <div class="card">
+        <div class="section-title">The Role</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="jobTitle">Job Title</label>
+            <input type="text" id="jobTitle" placeholder="e.g. Senior Product Manager">
+          </div>
+          <div class="form-group">
+            <label for="company">Company</label>
+            <input type="text" id="company" placeholder="e.g. Acme Corp">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label for="jobDescription">Job Description / Key Requirements</label>
+            <textarea id="jobDescription" rows="6" placeholder="Paste the job description or key requirements here..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Candidate Self-Profile -->
+      <div class="card">
+        <div class="section-title">About You</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="yourName">Your Name (optional)</label>
+            <input type="text" id="yourName" placeholder="e.g. Alex Johnson">
+          </div>
+          <div class="form-group">
+            <label for="yourTitle">Your Current / Most Recent Title</label>
+            <input type="text" id="yourTitle" placeholder="e.g. Product Manager at Startup Inc">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label for="yourBackground">Your Background Summary</label>
+            <textarea id="yourBackground" rows="4" placeholder="Briefly describe your experience, key skills, and what you bring to this type of role..."></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="yourStrengths">Your Key Strengths (one per line)</label>
+            <textarea id="yourStrengths" rows="3" placeholder="e.g. Built 0-to-1 product at Series A&#10;Strong cross-functional leadership&#10;Deep SaaS domain expertise"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="yourConcerns">Your Honest Concerns (one per line)</label>
+            <textarea id="yourConcerns" rows="3" placeholder="e.g. No enterprise sales experience&#10;Comp expectation may be above range&#10;Would need visa sponsorship"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scoring -->
+      <div class="card">
+        <div class="section-title">Self-Score Each Dimension (1 = Poor Fit &rarr; 10 = Excellent Fit)</div>
+        <div class="honesty-tip">
+          <strong>Be honest with yourself.</strong> This assessment is for your benefit — scoring yourself too high won't help you prepare, and scoring too low may undersell you. Aim for calibrated accuracy.
+        </div>
+        <div class="scoring-grid" id="scoringGrid"></div>
+      </div>
+
+      <div class="card">
+        <button class="btn-primary" onclick="generateSelfReport()">Generate My Fit Assessment &rarr;</button>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="results">
+      <div class="result-header" id="resultHeader">
+        <div class="result-score" id="resultScore"></div>
+        <div class="result-label" id="resultLabel"></div>
+        <div class="result-sublabel" id="resultSublabel"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Score Breakdown</div>
+        <div class="breakdown-grid" id="breakdownGrid"></div>
+      </div>
+
+      <div class="strengths-concerns">
+        <div class="sc-card">
+          <div class="sc-title strengths">Your Strengths for This Role</div>
+          <div id="strengthsList"></div>
+        </div>
+        <div class="sc-card">
+          <div class="sc-title concerns">Honest Concerns to Address</div>
+          <div id="concernsList"></div>
+        </div>
+      </div>
+
+      <div class="next-steps-card">
+        <div class="next-steps-title">Recommended Next Steps</div>
+        <div class="next-steps-text" id="nextStepsText"></div>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn-secondary" onclick="window.print()">Print / Save as PDF</button>
+        <button class="btn-secondary" onclick="resetForm()">Start Over</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const WEIGHTS = [0.25, 0.20, 0.18, 0.12, 0.15, 0.10];
+    const DIM_NAMES = ['Experience Match','Skills & Technical Fit','Stage & Culture Fit','Compensation Alignment','Leadership & Soft Skills','Motivation & Urgency'];
+    const DIM_GUIDES = [
+      'How well does your background match the experience this role requires?',
+      'How strong is your skills match — technical, tools, domain expertise?',
+      'How well do you fit the company stage, culture, and working style?',
+      'How aligned is your comp expectation with what this role likely offers?',
+      'How strong is your leadership presence and soft skills for this level?',
+      'How motivated and urgent are you about this specific role and company?'
+    ];
+
+    const REC_LABELS = {
+      strong_yes: 'Strong Fit  -  Apply with confidence.',
+      yes: 'Good Fit  -  Worth pursuing, address minor gaps.',
+      maybe: 'Partial Fit  -  Proceed with clear eyes; prepare gap narrative.',
+      no: 'Weak Fit  -  Not the right fit at this time.',
+      strong_no: 'Poor Fit  -  This role is not aligned with your profile.',
+      '': 'No recommendation available.'
+    };
+
+    // Build scoring sliders
+    const grid = document.getElementById('scoringGrid');
+    WEIGHTS.forEach(function(w, i) {
+      const card = document.createElement('div');
+      card.className = 'score-card';
+      card.innerHTML = '<div class="score-label">' + DIM_NAMES[i] + '</div>' +
+        '<div class="score-sublabel">' + DIM_GUIDES[i] + '</div>' +
+        '<div class="weight-note">Weight: ' + Math.round(w * 100) + '%</div>' +
+        '<div class="score-input-row">' +
+          '<input type="range" min="1" max="10" value="5" id="score_' + i + '" ' +
+            'oninput="document.getElementById('val_' + i + '').textContent=this.value">' +
+          '<span class="score-value" id="val_' + i + '">5</span>' +
+        '</div>';
+      grid.appendChild(card);
+    });
+
+    function generateSelfReport() {
+      var jobTitle = document.getElementById('jobTitle').value.trim() || 'the role';
+      var company = document.getElementById('company').value.trim() || 'the company';
+      var yourName = document.getElementById('yourName').value.trim() || 'You';
+      var yourTitle = document.getElementById('yourTitle').value.trim();
+      var background = document.getElementById('yourBackground').value.trim();
+      var strengthsRaw = (document.getElementById('yourStrengths').value || '').trim().split('\n').filter(function(l){ return l.trim(); });
+      var concernsRaw = (document.getElementById('yourConcerns').value || '').trim().split('\n').filter(function(l){ return l.trim(); });
+
+      var scores = [];
+      for (var i = 0; i < WEIGHTS.length; i++) {
+        scores.push(parseInt(document.getElementById('score_' + i).value, 10));
+      }
+
+      var weighted = 0;
+      for (var j = 0; j < WEIGHTS.length; j++) {
+        weighted += scores[j] * WEIGHTS[j];
+      }
+      var pct = Math.round(weighted * 10);
+
+      var recKey = '';
+      var headerClass = '';
+      var sublabel = '';
+      var nextSteps = '';
+
+      if (pct >= 85) {
+        recKey = 'strong_yes';
+        headerClass = 'strong-yes';
+        sublabel = 'Your self-assessment shows excellent alignment with ' + jobTitle + ' at ' + company + '.';
+        nextSteps = 'Apply now. Customize your resume to highlight your strongest dimensions. Prepare specific examples for each dimension in your interviews. Your main task is to communicate your fit clearly, not to prove it.';
+      } else if (pct >= 70) {
+        recKey = 'yes';
+        headerClass = 'yes';
+        sublabel = 'You show solid alignment with this role. Worth pursuing.';
+        nextSteps = 'Apply, but be strategic. Identify your 1-2 lowest scores and prepare a clear narrative around them. Lead with your strengths in your application materials and be ready to address gaps directly in interviews.';
+      } else if (pct >= 55) {
+        recKey = 'maybe';
+        headerClass = 'maybe';
+        sublabel = 'Meaningful fit with notable gaps. A stretch role.';
+        nextSteps = 'Consider applying if you are genuinely excited about the role and growth opportunity. Be honest in your application about what you bring and what you are still building. Identify which gaps you can close quickly and which are longer-term. This may not be a slam dunk offer, but it could be the right move.';
+      } else if (pct >= 40) {
+        recKey = 'no';
+        headerClass = 'no';
+        sublabel = 'Significant misalignment. This role may not be right for you now.';
+        nextSteps = 'It may be worth waiting for a better-matched opportunity, or taking specific steps to close the gaps before applying. Review which dimensions scored lowest and consider whether those gaps are bridgeable in 6-12 months. Apply only if you have a compelling personal connection or unique inside insight.';
+      } else {
+        recKey = 'strong_no';
+        headerClass = 'strong-no';
+        sublabel = 'This role appears to be a poor fit based on your self-assessment.';
+        nextSteps = 'Focus your energy on roles where your fit score is higher. Use this assessment to understand which areas need development. Consider speaking with a mentor or coach about your career path relative to this type of role.';
+      }
+
+      // Header
+      var header = document.getElementById('resultHeader');
+      header.className = 'result-header ' + headerClass;
+      document.getElementById('resultScore').textContent = pct + '%';
+      document.getElementById('resultLabel').textContent = REC_LABELS[recKey];
+      document.getElementById('resultSublabel').textContent = sublabel;
+
+      // Breakdown
+      var breakGrid = document.getElementById('breakdownGrid');
+      breakGrid.innerHTML = '';
+      for (var k = 0; k < WEIGHTS.length; k++) {
+        var dc = document.createElement('div');
+        dc.className = 'dim-card';
+        var fillPct = Math.round(scores[k] * 10);
+        dc.innerHTML = '<div class="dim-name">' + DIM_NAMES[k] + '</div>' +
+          '<div class="dim-score-row">' +
+            '<div class="dim-bar"><div class="dim-bar-fill" style="width:' + fillPct + '%"></div></div>' +
+            '<div class="dim-score-num">' + scores[k] + '/10</div>' +
+          '</div>';
+        breakGrid.appendChild(dc);
+      }
+
+      // Strengths
+      var sList = document.getElementById('strengthsList');
+      sList.innerHTML = '';
+      if (strengthsRaw.length) {
+        strengthsRaw.forEach(function(s) {
+          var d = document.createElement('div');
+          d.className = 'sc-item';
+          d.textContent = s;
+          sList.appendChild(d);
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moonshot Job Fit Self-Assessment | Am I a Fit?</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+    .container { max-width: 860px; margin: 0 auto; }
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: #64748b;
+      font-size: 1rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #6366f1;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #ede9fe;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-row.single { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 0.8rem; font-weight: 600; color: #374151; }
+    input[type="text"], textarea, select {
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: #1a1a2e;
+      background: #fafafa;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #6366f1;
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 100px; }
+    .scoring-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .score-card {
+      background: #f8f7ff;
+      border: 1.5px solid #ede9fe;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .score-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #4c1d95;
+      margin-bottom: 4px;
+    }
+    .score-sublabel {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .score-input-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    input[type="range"] {
+      flex: 1;
+      accent-color: #6366f1;
+      cursor: pointer;
+    }
+    .score-value {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #6366f1;
+      min-width: 28px;
+      text-align: center;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border: none;
+      padding: 14px 40px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+    .btn-primary:hover { opacity: 0.93; transform: translateY(-1px); }
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1.5px solid #e2e8f0;
+      padding: 10px 24px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: #e2e8f0; }
+    #results { display: none; }
+    .result-header {
+      text-align: center;
+      padding: 24px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
+    .result-header.strong-yes { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+    .result-header.yes { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+    .result-header.maybe { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+    .result-header.no { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+    .result-header.strong-no { background: linear-gradient(135deg, #7f1d1d, #991b1b); color: white; }
+    .result-score {
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .result-label {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .result-sublabel {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    .breakdown-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .dim-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+      border-left: 4px solid #6366f1;
+    }
+    .dim-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+    .dim-score-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dim-bar {
+      flex: 1;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .dim-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    }
+    .dim-score-num {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #6366f1;
+      min-width: 28px;
+    }
+    .strengths-concerns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .sc-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    }
+    .sc-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .sc-title.strengths { color: #10b981; }
+    .sc-title.concerns { color: #ef4444; }
+    .sc-item {
+      font-size: 0.85rem;
+      color: #374151;
+      padding: 6px 0;
+      border-bottom: 1px solid #f1f5f9;
+      line-height: 1.4;
+    }
+    .sc-item:last-child { border-bottom: none; }
+    .next-steps-card {
+      background: linear-gradient(135deg, #ede9fe, #e0e7ff);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .next-steps-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #4c1d95;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .next-steps-text {
+      font-size: 0.9rem;
+      color: #3730a3;
+      line-height: 1.6;
+    }
+    .actions-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    @media (max-width: 640px) {
+      .form-row { grid-template-columns: 1fr; }
+      .scoring-grid { grid-template-columns: 1fr; }
+      .breakdown-grid { grid-template-columns: 1fr; }
+      .strengths-concerns { grid-template-columns: 1fr; }
+      header h1 { font-size: 1.5rem; }
+    }
+    .weight-note {
+      font-size: 0.72rem;
+      color: #9ca3af;
+      font-style: italic;
+      margin-top: 2px;
+    }
+    .honesty-tip {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      color: #78350f;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Moonshot Job Fit Self-Assessment</h1>
+      <p>Score yourself honestly against a role — before you apply, or as you prepare.</p>
+    </header>
+
+    <div id="inputSection">
+      <!-- Job Info -->
+      <div class="card">
+        <div class="section-title">The Role</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="jobTitle">Job Title</label>
+            <input type="text" id="jobTitle" placeholder="e.g. Senior Product Manager">
+          </div>
+          <div class="form-group">
+            <label for="company">Company</label>
+            <input type="text" id="company" placeholder="e.g. Acme Corp">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label for="jobDescription">Job Description / Key Requirements</label>
+            <textarea id="jobDescription" rows="6" placeholder="Paste the job description or key requirements here..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Candidate Self-Profile -->
+      <div class="card">
+        <div class="section-title">About You</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="yourName">Your Name (optional)</label>
+            <input type="text" id="yourName" placeholder="e.g. Alex Johnson">
+          </div>
+          <div class="form-group">
+            <label for="yourTitle">Your Current / Most Recent Title</label>
+            <input type="text" id="yourTitle" placeholder="e.g. Product Manager at Startup Inc">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label for="yourBackground">Your Background Summary</label>
+            <textarea id="yourBackground" rows="4" placeholder="Briefly describe your experience, key skills, and what you bring to this type of role..."></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="yourStrengths">Your Key Strengths (one per line)</label>
+            <textarea id="yourStrengths" rows="3" placeholder="e.g. Built 0-to-1 product at Series A&#10;Strong cross-functional leadership&#10;Deep SaaS domain expertise"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="yourConcerns">Your Honest Concerns (one per line)</label>
+            <textarea id="yourConcerns" rows="3" placeholder="e.g. No enterprise sales experience&#10;Comp expectation may be above range&#10;Would need visa sponsorship"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scoring -->
+      <div class="card">
+        <div class="section-title">Self-Score Each Dimension (1 = Poor Fit &rarr; 10 = Excellent Fit)</div>
+        <div class="honesty-tip">
+          <strong>Be honest with yourself.</strong> This assessment is for your benefit — scoring yourself too high won't help you prepare, and scoring too low may undersell you. Aim for calibrated accuracy.
+        </div>
+        <div class="scoring-grid" id="scoringGrid"></div>
+      </div>
+
+      <div class="card">
+        <button class="btn-primary" onclick="generateSelfReport()">Generate My Fit Assessment &rarr;</button>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="results">
+      <div class="result-header" id="resultHeader">
+        <div class="result-score" id="resultScore"></div>
+        <div class="result-label" id="resultLabel"></div>
+        <div class="result-sublabel" id="resultSublabel"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Score Breakdown</div>
+        <div class="breakdown-grid" id="breakdownGrid"></div>
+      </div>
+
+      <div class="strengths-concerns">
+        <div class="sc-card">
+          <div class="sc-title strengths">Your Strengths for This Role</div>
+          <div id="strengthsList"></div>
+        </div>
+        <div class="sc-card">
+          <div class="sc-title concerns">Honest Concerns to Address</div>
+          <div id="concernsList"></div>
+        </div>
+      </div>
+
+      <div class="next-steps-card">
+        <div class="next-steps-title">Recommended Next Steps</div>
+        <div class="next-steps-text" id="nextStepsText"></div>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn-secondary" onclick="window.print()">Print / Save as PDF</button>
+        <button class="btn-secondary" onclick="resetForm()">Start Over</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const WEIGHTS = [0.25, 0.20, 0.18, 0.12, 0.15, 0.10];
+    const DIM_NAMES = ['Experience Match','Skills & Technical Fit','Stage & Culture Fit','Compensation Alignment','Leadership & Soft Skills','Motivation & Urgency'];
+    const DIM_GUIDES = [
+      'How well does your background match the experience this role requires?',
+      'How strong is your skills match — technical, tools, domain expertise?',
+      'How well do you fit the company stage, culture, and working style?',
+      'How aligned is your comp expectation with what this role likely offers?',
+      'How strong is your leadership presence and soft skills for this level?',
+      'How motivated and urgent are you about this specific role and company?'
+    ];
+
+    const REC_LABELS = {
+      strong_yes: 'Strong Fit  -  Apply with confidence.',
+      yes: 'Good Fit  -  Worth pursuing, address minor gaps.',
+      maybe: 'Partial Fit  -  Proceed with clear eyes; prepare gap narrative.',
+      no: 'Weak Fit  -  Not the right fit at this time.',
+      strong_no: 'Poor Fit  -  This role is not aligned with your profile.',
+      '': 'No recommendation available.'
+    };
+
+    // Build scoring sliders
+    const grid = document.getElementById('scoringGrid');
+    WEIGHTS.forEach(function(w, i) {
+      const card = document.createElement('div');
+      card.className = 'score-card';
+      card.innerHTML = '<div class="score-label">' + DIM_NAMES[i] + '</div>' +
+        '<div class="score-sublabel">' + DIM_GUIDES[i] + '</div>' +
+        '<div class="weight-note">Weight: ' + Math.round(w * 100) + '%</div>' +
+        '<div class="score-input-row">' +
+          '<input type="range" min="1" max="10" value="5" id="score_' + i + '" ' +
+            'oninput="document.getElementById('val_' + i + '').textContent=this.value">' +
+          '<span class="score-value" id="val_' + i + '">5</span>' +
+        '</div>';
+      grid.appendChild(card);
+    });
+
+    function generateSelfReport() {
+      var jobTitle = document.getElementById('jobTitle').value.trim() || 'the role';
+      var company = document.getElementById('company').value.trim() || 'the company';
+      var yourName = document.getElementById('yourName').value.trim() || 'You';
+      var yourTitle = document.getElementById('yourTitle').value.trim();
+      var background = document.getElementById('yourBackground').value.trim();
+      var strengthsRaw = (document.getElementById('yourStrengths').value || '').trim().split('\n').filter(function(l){ return l.trim(); });
+      var concernsRaw = (document.getElementById('yourConcerns').value || '').trim().split('\n').filter(function(l){ return l.trim(); });
+
+      var scores = [];
+      for (var i = 0; i < WEIGHTS.length; i++) {
+        scores.push(parseInt(document.getElementById('score_' + i).value, 10));
+      }
+
+      var weighted = 0;
+      for (var j = 0; j < WEIGHTS.length; j++) {
+        weighted += scores[j] * WEIGHTS[j];
+      }
+      var pct = Math.round(weighted * 10);
+
+      var recKey = '';
+      var headerClass = '';
+      var sublabel = '';
+      var nextSteps = '';
+
+      if (pct >= 85) {
+        recKey = 'strong_yes';
+        headerClass = 'strong-yes';
+        sublabel = 'Your self-assessment shows excellent alignment with ' + jobTitle + ' at ' + company + '.';
+        nextSteps = 'Apply now. Customize your resume to highlight your strongest dimensions. Prepare specific examples for each dimension in your interviews. Your main task is to communicate your fit clearly, not to prove it.';
+      } else if (pct >= 70) {
+        recKey = 'yes';
+        headerClass = 'yes';
+        sublabel = 'You show solid alignment with this role. Worth pursuing.';
+        nextSteps = 'Apply, but be strategic. Identify your 1-2 lowest scores and prepare a clear narrative around them. Lead with your strengths in your application materials and be ready to address gaps directly in interviews.';
+      } else if (pct >= 55) {
+        recKey = 'maybe';
+        headerClass = 'maybe';
+        sublabel = 'Meaningful fit with notable gaps. A stretch role.';
+        nextSteps = 'Consider applying if you are genuinely excited about the role and growth opportunity. Be honest in your application about what you bring and what you are still building. Identify which gaps you can close quickly and which are longer-term. This may not be a slam dunk offer, but it could be the right move.';
+      } else if (pct >= 40) {
+        recKey = 'no';
+        headerClass = 'no';
+        sublabel = 'Significant misalignment. This role may not be right for you now.';
+        nextSteps = 'It may be worth waiting for a better-matched opportunity, or taking specific steps to close the gaps before applying. Review which dimensions scored lowest and consider whether those gaps are bridgeable in 6-12 months. Apply only if you have a compelling personal connection or unique inside insight.';
+      } else {
+        recKey = 'strong_no';
+        headerClass = 'strong-no';
+        sublabel = 'This role appears to be a poor fit based on your self-assessment.';
+        nextSteps = 'Focus your energy on roles where your fit score is higher. Use this assessment to understand which areas need development. Consider speaking with a mentor or coach about your career path relative to this type of role.';
+      }
+
+      // Header
+      var header = document.getElementById('resultHeader');
+      header.className = 'result-header ' + headerClass;
+      document.getElementById('resultScore').textContent = pct + '%';
+      document.getElementById('resultLabel').textContent = REC_LABELS[recKey];
+      document.getElementById('resultSublabel').textContent = sublabel;
+
+      // Breakdown
+      var breakGrid = document.getElementById('breakdownGrid');
+      breakGrid.innerHTML = '';
+      for (var k = 0; k < WEIGHTS.length; k++) {
+        var dc = document.createElement('div');
+        dc.className = 'dim-card';
+        var fillPct = Math.round(scores[k] * 10);
+        dc.innerHTML = '<div class="dim-name">' + DIM_NAMES[k] + '</div>' +
+          '<div class="dim-score-row">' +
+            '<div class="dim-bar"><div class="dim-bar-fill" style="width:' + fillPct + '%"></div></div>' +
+            '<div class="dim-score-num">' + scores[k] + '/10</div>' +
+          '</div>';
+        breakGrid.appendChild(dc);
+      }
+
+      // Strengths
+      var sList = document.getElementById('strengthsList');
+      sList.innerHTML = '';
+      if (strengthsRaw.length) {
+        strengthsRaw.forEach(function(s) {
+          var d = document.createElement('div');
+          d.className = 'sc-item';
+          d.textContent = s;
+          sList.appendChild(d);
+        });
+      } else {
+        sList.innerHTML = '<div class="sc-item" style="color:#9ca3af">No strengths entered</div>';
+      }
+
+      // Concerns
+      var cList = document.getElementById('concernsList');
+      cList.innerHTML = '';
+      if (concernsRaw.length) {
+        concernsRaw.forEach(function(c) {
+          var d = document.createElement('div');
+          d.className = 'sc-item';
+          d.textContent = c;
+          cList.appendChild(d);
+        });
+      } else {
+        cList.innerHTML = '<div class="sc-item" style="color:#9ca3af">No concerns entered</div>';
+      }
+
+      // Next steps
+      document.getElementById('nextStepsText').textContent = nextSteps;
+
+      // Show results
+      document.getElementById('inputSection').style.display = 'none';
+      document.getElementById('results').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+      document.getElementById('inputSection').style.display = 'block';
+      document.getElementById('results').style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+        </html>

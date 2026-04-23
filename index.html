@@ -678,13 +678,11 @@
       grid.appendChild(card);
     });
 
-    var gfRaw = (document.getElementById('greenFlags').value || '').trim().split('
-').filter(function(l){ return l.trim(); });
+    var gfRaw = (document.getElementById('greenFlags').value || '').trim().split('\n').filter(function(l){ return l.trim(); });
     var gl = document.getElementById('greenList');
     gl.innerHTML = gfRaw.length ? gfRaw.map(function(f){ return '<li>' + f.trim() + '</li>'; }).join('') : '<li>No green flags noted</li>';
 
-    var rfRaw = (document.getElementById('redFlags').value || '').trim().split('
-').filter(function(l){ return l.trim(); });
+    var rfRaw = (document.getElementById('redFlags').value || '').trim().split('\n').filter(function(l){ return l.trim(); });
     var rl = document.getElementById('redList');
     rl.innerHTML = rfRaw.length ? rfRaw.map(function(f){ return '<li>' + f.trim() + '</li>'; }).join('') : '<li>No concerns noted</li>';
 

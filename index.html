@@ -611,11 +611,11 @@
   const WEIGHTS = [0.25, 0.20, 0.18, 0.12, 0.15, 0.10];
   const DIM_NAMES = ['Experience Match','Skills & Technical Fit','Stage & Culture Fit','Compensation Alignment','Leadership & Soft Skills','Motivation & Urgency'];
   const REC_LABELS = {
-    strong_yes: 'Strong Yes â Move to next round immediately.',
-    yes: 'Yes â Worth advancing, minor concerns only.',
-    maybe: 'Maybe â Advance with caveats; additional diligence recommended.',
-    no: 'No â Not the right fit at this time.',
-    strong_no: 'Strong No â Significant misalignment across multiple dimensions.',
+    strong_yes: 'Strong Yes  -  Move to next round immediately.',
+    yes: 'Yes  -  Worth advancing, minor concerns only.',
+    maybe: 'Maybe  -  Advance with caveats; additional diligence recommended.',
+    no: 'No  -  Not the right fit at this time.',
+    strong_no: 'Strong No  -  Significant misalignment across multiple dimensions.',
     '': 'No recommendation recorded.'
   };
 
@@ -654,7 +654,7 @@
     var role = (document.getElementById('roleTitle').value || '').trim();
     var company = (document.getElementById('company').value || '').trim();
     var sub = role && company ? role + ' at ' + company : (role || company);
-    var titleLine = sub ? name + ' â ' + sub : name;
+    var titleLine = sub ? name + '  -  ' + sub : name;
 
     document.getElementById('fitBadge').textContent = fit.label;
     document.getElementById('fitBadge').className = 'fit-badge ' + fit.cls;

@@ -1,550 +1,881 @@
 <!DOCTYPE html>
-<!-- Moonshot Candidate Self-Assessment v1.0 -->
+<!-- Moonshot Job Fit Analyzer v2.0 — AI-powered candidate fit assessment -->
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moonshot Job Fit Self-Assessment | Am I a Fit?</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f0f2f5;
-      color: #1a1a2e;
-      min-height: 100vh;
-      padding: 24px 16px;
-    }
-    .container { max-width: 860px; margin: 0 auto; }
-    header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-    header h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 8px;
-    }
-    header p {
-      color: #64748b;
-      font-size: 1rem;
-    }
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 28px;
-      margin-bottom: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    .section-title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #6366f1;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #ede9fe;
-    }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-    .form-row.single { grid-template-columns: 1fr; }
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    label { font-size: 0.8rem; font-weight: 600; color: #374151; }
-    input[type="text"], textarea, select {
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      color: #1a1a2e;
-      background: #fafafa;
-      transition: border-color 0.2s;
-      width: 100%;
-    }
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: #6366f1;
-      background: #fff;
-    }
-    textarea { resize: vertical; min-height: 100px; }
-    .scoring-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .score-card {
-      background: #f8f7ff;
-      border: 1.5px solid #ede9fe;
-      border-radius: 12px;
-      padding: 16px;
-    }
-    .score-label {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #4c1d95;
-      margin-bottom: 4px;
-    }
-    .score-sublabel {
-      font-size: 0.75rem;
-      color: #6b7280;
-      margin-bottom: 12px;
-      line-height: 1.4;
-    }
-    .score-input-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    input[type="range"] {
-      flex: 1;
-      accent-color: #6366f1;
-      cursor: pointer;
-    }
-    .score-value {
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: #6366f1;
-      min-width: 28px;
-      text-align: center;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: white;
-      border: none;
-      padding: 14px 40px;
-      font-size: 1rem;
-      font-weight: 700;
-      border-radius: 12px;
-      cursor: pointer;
-      width: 100%;
-      transition: opacity 0.2s, transform 0.1s;
-      margin-top: 8px;
-    }
-    .btn-primary:hover { opacity: 0.93; transform: translateY(-1px); }
-    .btn-secondary {
-      background: #f1f5f9;
-      color: #475569;
-      border: 1.5px solid #e2e8f0;
-      padding: 10px 24px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-secondary:hover { background: #e2e8f0; }
-    #results { display: none; }
-    .result-header {
-      text-align: center;
-      padding: 24px;
-      border-radius: 16px;
-      margin-bottom: 20px;
-    }
-    .result-header.strong-yes { background: linear-gradient(135deg, #10b981, #059669); color: white; }
-    .result-header.yes { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
-    .result-header.maybe { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
-    .result-header.no { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
-    .result-header.strong-no { background: linear-gradient(135deg, #7f1d1d, #991b1b); color: white; }
-    .result-score {
-      font-size: 3.5rem;
-      font-weight: 900;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-    .result-label {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-    .result-sublabel {
-      font-size: 0.9rem;
-      opacity: 0.9;
-    }
-    .breakdown-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .dim-card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 14px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
-      border-left: 4px solid #6366f1;
-    }
-    .dim-name {
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: #374151;
-      margin-bottom: 4px;
-    }
-    .dim-score-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .dim-bar {
-      flex: 1;
-      height: 6px;
-      background: #e5e7eb;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .dim-bar-fill {
-      height: 100%;
-      border-radius: 3px;
-      background: linear-gradient(90deg, #6366f1, #8b5cf6);
-    }
-    .dim-score-num {
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: #6366f1;
-      min-width: 28px;
-    }
-    .strengths-concerns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    .sc-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 18px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
-    }
-    .sc-title {
-      font-size: 0.8rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .sc-title.strengths { color: #10b981; }
-    .sc-title.concerns { color: #ef4444; }
-    .sc-item {
-      font-size: 0.85rem;
-      color: #374151;
-      padding: 6px 0;
-      border-bottom: 1px solid #f1f5f9;
-      line-height: 1.4;
-    }
-    .sc-item:last-child { border-bottom: none; }
-    .next-steps-card {
-      background: linear-gradient(135deg, #ede9fe, #e0e7ff);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    .next-steps-title {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #4c1d95;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .next-steps-text {
-      font-size: 0.9rem;
-      color: #3730a3;
-      line-height: 1.6;
-    }
-    .actions-row {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-    }
-    @media (max-width: 640px) {
-      .form-row { grid-template-columns: 1fr; }
-      .scoring-grid { grid-template-columns: 1fr; }
-      .breakdown-grid { grid-template-columns: 1fr; }
-      .strengths-concerns { grid-template-columns: 1fr; }
-      header h1 { font-size: 1.5rem; }
-    }
-    .weight-note {
-      font-size: 0.72rem;
-      color: #9ca3af;
-      font-style: italic;
-      margin-top: 2px;
-    }
-    .honesty-tip {
-      background: #fef3c7;
-      border-left: 4px solid #f59e0b;
-      border-radius: 0 8px 8px 0;
-      padding: 12px 16px;
-      font-size: 0.82rem;
-      color: #78350f;
-      margin-bottom: 20px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moonshot Job Fit Analyzer | Should I apply?</title>
+<meta name="description" content="Score yourself honestly against any job. Get an AI-powered fit assessment, gap analysis, resume bullet rewrites, and a clear apply/don't-apply verdict.">
+<meta property="og:title" content="Moonshot Job Fit Analyzer">
+<meta property="og:description" content="Should you apply? Get an honest, AI-powered fit assessment in 2 minutes.">
+<meta property="og:url" content="https://moonshotfitanalyzer.com/">
+<meta property="og:type" content="website">
+<link rel="icon" href="MoonshotLogo.webp" type="image/webp">
+<link rel="apple-touch-icon" href="MoonshotLogo.webp">
+<link rel="canonical" href="https://moonshotfitanalyzer.com/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1a1f2e; --bg2:#222736; --bg3:#2a3045;
+  --accent:#667eea; --accent-dim:#4f63c8; --accent-glow:rgba(102,126,234,0.15);
+  --text:#f0f2f8; --muted:#8b9ab8;
+  --border:rgba(102,126,234,0.2);
+  --red:#e05252; --yellow:#e8a020; --green:#4caf82;
+  --radius:12px; --transition:0.35s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:'DM Sans',sans-serif; font-weight:400; line-height:1.65;
+  min-height:100vh; overflow-x:hidden;
+}
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:radial-gradient(ellipse at top right, var(--accent-glow), transparent 60%),
+             radial-gradient(ellipse at bottom left, rgba(76,175,130,0.06), transparent 55%);
+}
+.wrap{position:relative; z-index:1; max-width:920px; margin:0 auto; padding:32px 20px 80px}
+.brand{display:flex; align-items:center; gap:12px; margin-bottom:8px}
+.brand img{width:40px; height:40px; border-radius:8px; object-fit:cover}
+.brand-eyebrow{font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); font-weight:600}
+.hero{text-align:center; padding:48px 20px 32px}
+.hero h1{
+  font-family:'DM Sans',sans-serif; font-weight:700;
+  font-size:clamp(32px,5vw,52px); line-height:1.1; margin-bottom:18px;
+}
+.hero h1 em{font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:600; color:var(--accent)}
+.hero p{color:var(--muted); font-size:18px; max-width:580px; margin:0 auto 28px}
+.cta{
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--accent); color:#fff; border:none;
+  font-family:inherit; font-weight:600; font-size:16px;
+  padding:14px 32px; border-radius:8px; cursor:pointer;
+  transition:background var(--transition), transform 0.15s;
+}
+.cta:hover{background:var(--accent-dim); transform:translateY(-1px)}
+.foot-note{color:var(--muted); font-size:13px; margin-top:36px}
+.foot-note a{color:var(--accent); text-decoration:none}
+.foot-note a:hover{text-decoration:underline}
+
+/* progress */
+.progress-wrap{display:none; margin:0 auto 28px; max-width:560px}
+.progress-wrap.visible{display:block}
+.progress-row{display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:8px; letter-spacing:0.06em}
+.progress-bar{height:4px; background:var(--bg3); border-radius:2px; overflow:hidden}
+.progress-fill{height:100%; background:var(--accent); width:0; transition:width var(--transition)}
+/* steps */
+.step{display:none; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:36px; margin-bottom:20px}
+.step.visible{display:block; animation:fadeIn 0.4s ease}
+@keyframes fadeIn{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+.step h2{font-size:24px; font-weight:700; margin-bottom:8px}
+.step .sub{color:var(--muted); font-size:15px; margin-bottom:24px}
+.field{margin-bottom:18px}
+.field label{display:block; font-size:13px; font-weight:600; color:var(--text); margin-bottom:6px; letter-spacing:0.02em}
+.field .hint{font-size:12px; color:var(--muted); margin-bottom:6px}
+.input, .textarea, select.input{
+  width:100%; background:var(--bg3); color:var(--text);
+  border:1px solid var(--border); border-radius:8px;
+  font-family:inherit; font-size:15px; padding:12px 14px;
+  transition:border-color var(--transition), background var(--transition);
+}
+.input:focus, .textarea:focus{outline:none; border-color:var(--accent); background:#2f3550}
+.textarea{min-height:120px; resize:vertical; line-height:1.55}
+.row2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+@media(max-width:640px){ .row2{grid-template-columns:1fr} .step{padding:24px} }
+.error{color:var(--red); font-size:13px; margin-top:8px; display:none}
+.error.visible{display:block}
+.btn-row{display:flex; gap:12px; margin-top:24px; align-items:center}
+.btn-back{
+  background:transparent; color:var(--muted);
+  border:1px solid var(--border); font-family:inherit; font-size:14px;
+  padding:12px 20px; border-radius:8px; cursor:pointer;
+  transition:all var(--transition);
+}
+.btn-back:hover{border-color:var(--accent-dim); color:var(--text)}
+.btn-next{
+  background:var(--accent); color:#fff; border:none;
+  font-family:inherit; font-weight:600; font-size:15px;
+  padding:13px 28px; border-radius:8px; cursor:pointer;
+  transition:background var(--transition), transform 0.15s;
+  flex:1; max-width:240px;
+}
+.btn-next:hover{background:var(--accent-dim); transform:translateY(-1px)}
+/* radio cards */
+.radio-grid{display:grid; gap:10px}
+.radio-opt, .check-opt{
+  display:flex; align-items:flex-start; gap:12px; padding:16px;
+  background:var(--bg3); border:1.5px solid var(--border); border-radius:10px;
+  cursor:pointer; transition:all var(--transition);
+}
+.radio-opt:hover, .check-opt:hover{border-color:var(--accent-dim); background:#303652}
+.radio-opt.selected, .check-opt.selected{border-color:var(--accent); background:rgba(102,126,234,0.12)}
+.radio-dot{width:18px; height:18px; border-radius:50%; border:2px solid var(--muted); flex-shrink:0; margin-top:2px; position:relative}
+.radio-opt.selected .radio-dot{border-color:var(--accent)}
+.radio-opt.selected .radio-dot::after{content:''; position:absolute; inset:3px; background:var(--accent); border-radius:50%}
+.check-box{width:18px; height:18px; border-radius:4px; border:2px solid var(--muted); flex-shrink:0; margin-top:2px; position:relative}
+.check-opt.selected .check-box{border-color:var(--accent); background:var(--accent)}
+.check-opt.selected .check-box::after{content:'✓'; position:absolute; inset:0; color:#fff; font-size:13px; line-height:14px; text-align:center; font-weight:700}
+.opt-text{flex:1; font-size:15px; line-height:1.45}
+/* sliders */
+.slider-card{background:var(--bg3); border:1px solid var(--border); border-radius:10px; padding:18px; margin-bottom:12px}
+.slider-head{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:6px}
+.slider-name{font-weight:600; font-size:15px}
+.slider-weight{font-size:11px; color:var(--muted); letter-spacing:0.05em}
+.slider-guide{font-size:13px; color:var(--muted); margin-bottom:12px; line-height:1.5}
+.slider-row{display:flex; align-items:center; gap:14px}
+.slider-row input[type=range]{flex:1; accent-color:var(--accent); cursor:pointer}
+.slider-val{min-width:34px; text-align:center; font-weight:700; font-size:18px; color:var(--accent)}
+
+/* tip & privacy */
+.tip{
+  background:rgba(232,160,32,0.08); border-left:3px solid var(--yellow);
+  border-radius:0 8px 8px 0; padding:14px 16px; font-size:13px; color:#f3d8a7;
+  margin-bottom:18px; line-height:1.5;
+}
+.privacy-bar{
+  display:flex; align-items:center; gap:10px; justify-content:center;
+  font-size:12px; color:var(--muted); padding:14px; margin-top:18px;
+}
+.privacy-bar svg{flex-shrink:0}
+/* loading */
+.loading-card{display:none; text-align:center; padding:60px 30px;
+  background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:20px}
+.loading-card.visible{display:block; animation:fadeIn 0.4s ease}
+.spinner{width:48px; height:48px; border:3px solid var(--bg3); border-top-color:var(--accent); border-radius:50%; margin:0 auto 18px; animation:spin 0.9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-msg{font-size:16px; color:var(--text); font-weight:500}
+.loading-sub{font-size:13px; color:var(--muted); margin-top:6px}
+/* results */
+.results{display:none}
+.results.visible{display:block; animation:fadeIn 0.5s ease}
+.verdict-card{
+  background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius);
+  padding:36px; margin-bottom:20px; text-align:center;
+}
+.score-ring{position:relative; width:160px; height:160px; margin:0 auto 18px}
+.score-ring svg{width:100%; height:100%; transform:rotate(-90deg)}
+.score-ring circle{fill:none; stroke-width:10}
+.score-ring .ring-bg{stroke:var(--bg3)}
+.score-ring .ring-fill{stroke:var(--accent); stroke-linecap:round; transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)}
+.score-num{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center}
+.score-num .n{font-size:44px; font-weight:700; line-height:1}
+.score-num .of{font-size:13px; color:var(--muted); margin-top:2px}
+.verdict-badge{
+  display:inline-block; padding:8px 18px; border-radius:999px;
+  font-size:13px; font-weight:600; letter-spacing:0.04em; margin-bottom:14px;
+}
+.v-strong{background:rgba(76,175,130,0.18); color:var(--green); border:1px solid rgba(76,175,130,0.4)}
+.v-yes{background:rgba(102,126,234,0.18); color:var(--accent); border:1px solid var(--border)}
+.v-maybe{background:rgba(232,160,32,0.18); color:var(--yellow); border:1px solid rgba(232,160,32,0.4)}
+.v-no{background:rgba(224,82,82,0.18); color:var(--red); border:1px solid rgba(224,82,82,0.4)}
+.verdict-headline{font-size:24px; font-weight:700; margin-bottom:8px}
+.verdict-narrative{color:var(--muted); font-size:15px; max-width:600px; margin:0 auto; line-height:1.6}
+.section-card{
+  background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius);
+  padding:28px; margin-bottom:18px;
+}
+.section-card h3{font-size:13px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:18px}
+.dim-grid{display:grid; gap:12px}
+.dim-row{display:flex; align-items:center; gap:14px; font-size:14px}
+.dim-label{flex:0 0 200px; color:var(--text); font-weight:500}
+.dim-bar{flex:1; height:8px; background:var(--bg3); border-radius:4px; overflow:hidden}
+.dim-bar-fill{height:100%; background:var(--accent); border-radius:4px; transition:width 1s cubic-bezier(0.4,0,0.2,1)}
+.dim-num{flex:0 0 50px; text-align:right; font-weight:700; color:var(--accent)}
+@media(max-width:640px){ .dim-label{flex-basis:130px; font-size:13px} }
+.gap-list, .talk-list, .step-list{list-style:none; display:grid; gap:14px}
+.gap-item, .talk-item, .step-item{
+  background:var(--bg3); border-radius:10px; padding:16px;
+  border-left:3px solid var(--accent);
+}
+.gap-item .title, .talk-item .title, .step-item .title{font-weight:600; font-size:15px; margin-bottom:6px}
+.gap-item .desc, .talk-item .desc, .step-item .desc{color:var(--muted); font-size:14px; line-height:1.55}
+.gap-item .fix{margin-top:10px; padding:10px 12px; background:rgba(102,126,234,0.08); border-radius:6px; font-size:13px; color:var(--text); line-height:1.55}
+.gap-item .fix strong{color:var(--accent); font-weight:600}
+.bullet-rewrite{background:var(--bg3); border-radius:10px; padding:16px; margin-bottom:10px}
+.bullet-rewrite .from{font-size:13px; color:var(--muted); margin-bottom:6px; padding-left:12px; border-left:2px solid var(--bg3)}
+.bullet-rewrite .from::before{content:'BEFORE: '; color:var(--muted); font-weight:600; font-size:11px; letter-spacing:0.08em}
+.bullet-rewrite .to{font-size:14px; color:var(--text); padding-left:12px; border-left:2px solid var(--green); line-height:1.55}
+.bullet-rewrite .to::before{content:'AFTER: '; color:var(--green); font-weight:600; font-size:11px; letter-spacing:0.08em}
+.actions{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:24px}
+.btn-secondary{
+  background:transparent; color:var(--text); border:1px solid var(--border);
+  font-family:inherit; font-size:14px; font-weight:500;
+  padding:11px 22px; border-radius:8px; cursor:pointer;
+  transition:all var(--transition);
+}
+.btn-secondary:hover{border-color:var(--accent); background:var(--accent-glow)}
+.saved-list{margin-top:20px}
+.saved-row{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 14px; background:var(--bg3); border-radius:8px; margin-bottom:8px;
+  font-size:14px;
+}
+.saved-row .meta{color:var(--muted); font-size:12px}
+.saved-row .pct{font-weight:700; color:var(--accent)}
+.saved-row button{background:none; border:none; color:var(--muted); cursor:pointer; font-size:18px}
+.saved-row button:hover{color:var(--red)}
+@media print{
+  body{background:#fff; color:#000}
+  body::before{display:none}
+  .step, .progress-wrap, .actions, .privacy-bar, .hero{display:none !important}
+  .verdict-card, .section-card{background:#fff; border:1px solid #ddd; box-shadow:none; color:#000}
+  .verdict-card *, .section-card *{color:#000 !important}
+  .dim-bar{background:#eee}
+  .dim-bar-fill{background:#667eea}
+}
+</style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Moonshot Job Fit Self-Assessment</h1>
-      <p>Score yourself honestly against a role — before you apply, or as you prepare.</p>
-    </header>
+<div class="wrap">
 
-    <div id="inputSection">
-      <!-- Job Info -->
-      <div class="card">
-        <div class="section-title">The Role</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="jobTitle">Job Title</label>
-            <input type="text" id="jobTitle" placeholder="e.g. Senior Product Manager">
-          </div>
-          <div class="form-group">
-            <label for="company">Company</label>
-            <input type="text" id="company" placeholder="e.g. Acme Corp">
-          </div>
-        </div>
-        <div class="form-row single">
-          <div class="form-group">
-            <label for="jobDescription">Job Description / Key Requirements</label>
-            <textarea id="jobDescription" rows="6" placeholder="Paste the job description or key requirements here..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- Candidate Self-Profile -->
-      <div class="card">
-        <div class="section-title">About You</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="yourName">Your Name (optional)</label>
-            <input type="text" id="yourName" placeholder="e.g. Alex Johnson">
-          </div>
-          <div class="form-group">
-            <label for="yourTitle">Your Current / Most Recent Title</label>
-            <input type="text" id="yourTitle" placeholder="e.g. Product Manager at Startup Inc">
-          </div>
-        </div>
-        <div class="form-row single">
-          <div class="form-group">
-            <label for="yourBackground">Your Background Summary</label>
-            <textarea id="yourBackground" rows="4" placeholder="Briefly describe your experience, key skills, and what you bring to this type of role..."></textarea>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="yourStrengths">Your Key Strengths (one per line)</label>
-            <textarea id="yourStrengths" rows="3" placeholder="e.g. Built 0-to-1 product at Series A&#10;Strong cross-functional leadership&#10;Deep SaaS domain expertise"></textarea>
-          </div>
-          <div class="form-group">
-            <label for="yourConcerns">Your Honest Concerns (one per line)</label>
-            <textarea id="yourConcerns" rows="3" placeholder="e.g. No enterprise sales experience&#10;Comp expectation may be above range&#10;Would need visa sponsorship"></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- Scoring -->
-      <div class="card">
-        <div class="section-title">Self-Score Each Dimension (1 = Poor Fit &rarr; 10 = Excellent Fit)</div>
-        <div class="honesty-tip">
-          <strong>Be honest with yourself.</strong> This assessment is for your benefit — scoring yourself too high won't help you prepare, and scoring too low may undersell you. Aim for calibrated accuracy.
-        </div>
-        <div class="scoring-grid" id="scoringGrid"></div>
-      </div>
-
-      <div class="card">
-        <button class="btn-primary" onclick="generateSelfReport()">Generate My Fit Assessment &rarr;</button>
-      </div>
-    </div>
-
-    <!-- Results -->
-    <div id="results">
-      <div class="result-header" id="resultHeader">
-        <div class="result-score" id="resultScore"></div>
-        <div class="result-label" id="resultLabel"></div>
-        <div class="result-sublabel" id="resultSublabel"></div>
-      </div>
-
-      <div class="card">
-        <div class="section-title">Score Breakdown</div>
-        <div class="breakdown-grid" id="breakdownGrid"></div>
-      </div>
-
-      <div class="strengths-concerns">
-        <div class="sc-card">
-          <div class="sc-title strengths">Your Strengths for This Role</div>
-          <div id="strengthsList"></div>
-        </div>
-        <div class="sc-card">
-          <div class="sc-title concerns">Honest Concerns to Address</div>
-          <div id="concernsList"></div>
-        </div>
-      </div>
-
-      <div class="next-steps-card">
-        <div class="next-steps-title">Recommended Next Steps</div>
-        <div class="next-steps-text" id="nextStepsText"></div>
-      </div>
-
-      <div class="actions-row">
-        <button class="btn-secondary" onclick="window.print()">Print / Save as PDF</button>
-        <button class="btn-secondary" onclick="resetForm()">Start Over</button>
-      </div>
-    </div>
+  <!-- Brand -->
+  <div class="brand">
+    <img src="MoonshotLogo.webp" alt="Moonshot Consulting logo">
+    <span class="brand-eyebrow">Moonshot Job Fit Analyzer</span>
   </div>
 
-  <script>
-    const WEIGHTS = [0.25, 0.20, 0.18, 0.12, 0.15, 0.10];
-    const DIM_NAMES = ['Experience Match','Skills & Technical Fit','Stage & Culture Fit','Compensation Alignment','Leadership & Soft Skills','Motivation & Urgency'];
-    const DIM_GUIDES = [
-      'How well does your background match the experience this role requires?',
-      'How strong is your skills match — technical, tools, domain expertise?',
-      'How well do you fit the company stage, culture, and working style?',
-      'How aligned is your comp expectation with what this role likely offers?',
-      'How strong is your leadership presence and soft skills for this level?',
-      'How motivated and urgent are you about this specific role and company?'
-    ];
+  <!-- Hero -->
+  <section id="hero" class="hero">
+    <h1>Should you <em>actually apply</em>?</h1>
+    <p>Score yourself honestly against the role. Get an AI-powered fit assessment, gap analysis, resume rewrites, and a clear apply/don't-apply verdict — in two minutes.</p>
+    <button class="cta" onclick="startAssessment()">Start your assessment →</button>
+    <div class="foot-note">No account, no signup. <a href="#" onclick="event.preventDefault();showSaved()">View saved assessments</a> · <a href="https://moonshotexitplanner.com/" target="_blank">Considering leaving entirely? Try the Exit Planner →</a></div>
+  </section>
 
-    const REC_LABELS = {
-      strong_yes: 'Strong Fit  -  Apply with confidence.',
-      yes: 'Good Fit  -  Worth pursuing, address minor gaps.',
-      maybe: 'Partial Fit  -  Proceed with clear eyes; prepare gap narrative.',
-      no: 'Weak Fit  -  Not the right fit at this time.',
-      strong_no: 'Poor Fit  -  This role is not aligned with your profile.',
-      '': 'No recommendation available.'
-    };
+  <!-- Progress -->
+  <div id="progressWrap" class="progress-wrap">
+    <div class="progress-row"><span id="progressLabel">Step 1 of 5</span><span id="progressPct">0%</span></div>
+    <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+  </div>
 
-    // Build scoring sliders
-    const grid = document.getElementById('scoringGrid');
-    WEIGHTS.forEach(function(w, i) {
-      const card = document.createElement('div');
-      card.className = 'score-card';
-      card.innerHTML = '<div class="score-label">' + DIM_NAMES[i] + '</div>' +
-        '<div class="score-sublabel">' + DIM_GUIDES[i] + '</div>' +
-        '<div class="weight-note">Weight: ' + Math.round(w * 100) + '%</div>' +
-        '<div class="score-input-row">' +
-          '<input type="range" min="1" max="10" value="5" id="score_' + i + '" ' +
-            'oninput="document.getElementById('val_' + i + '').textContent=this.value">' +
-          '<span class="score-value" id="val_' + i + '">5</span>' +
-        '</div>';
-      grid.appendChild(card);
+  <!-- Step 1: Role -->
+  <section id="step1" class="step">
+    <h2>The role you're considering</h2>
+    <p class="sub">Paste the job description so we can compare it to your background. The more you paste, the sharper the analysis.</p>
+    <div class="row2">
+      <div class="field">
+        <label for="jobTitle">Job title</label>
+        <input id="jobTitle" class="input" type="text" placeholder="e.g. Senior Product Manager">
+      </div>
+      <div class="field">
+        <label for="company">Company</label>
+        <input id="company" class="input" type="text" placeholder="e.g. Acme Corp">
+      </div>
+    </div>
+    <div class="field">
+      <label for="jobDescription">Job description / key requirements</label>
+      <div class="hint">Paste the full job description. We'll extract must-haves vs nice-to-haves automatically.</div>
+      <textarea id="jobDescription" class="textarea" rows="8" placeholder="Paste the job description here..."></textarea>
+    </div>
+    <div class="error" id="step1Error">Please add at least a job title and a job description (50+ characters).</div>
+    <div class="btn-row">
+      <button class="btn-next" onclick="goStep(2)" style="margin-left:auto">Continue →</button>
+    </div>
+  </section>
+
+  <!-- Step 2: About You -->
+  <section id="step2" class="step">
+    <h2>About you</h2>
+    <p class="sub">Tell us about your background. Paste your resume or just summarize — both work.</p>
+    <div class="row2">
+      <div class="field">
+        <label for="yourName">Your name (optional)</label>
+        <input id="yourName" class="input" type="text" placeholder="e.g. Alex Johnson">
+      </div>
+      <div class="field">
+        <label for="yourTitle">Current / most recent title</label>
+        <input id="yourTitle" class="input" type="text" placeholder="e.g. Product Manager at Startup Inc">
+      </div>
+    </div>
+    <div class="field">
+      <label for="yourBackground">Your background — paste your resume or summarize</label>
+      <div class="hint">Years of experience, key roles, domains, technologies, achievements with numbers.</div>
+      <textarea id="yourBackground" class="textarea" rows="8" placeholder="e.g. 8 years in B2B SaaS product management. Led 0-to-1 launch at Series A startup that grew to $4M ARR. Previously PM at mid-market HR tech. Strong in user research, roadmap prioritization, and working with eng teams. MBA from Kellogg..."></textarea>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="yourStrengths">Your honest strengths for THIS role (one per line)</label>
+        <textarea id="yourStrengths" class="textarea" rows="4" placeholder="Built 0-to-1 products at Series A&#10;Strong cross-functional leadership&#10;Deep SaaS domain expertise"></textarea>
+      </div>
+      <div class="field">
+        <label for="yourConcerns">Your honest concerns / gaps (one per line)</label>
+        <textarea id="yourConcerns" class="textarea" rows="4" placeholder="No enterprise sales experience&#10;Comp expectation may be above range&#10;Would need visa sponsorship"></textarea>
+      </div>
+    </div>
+    <div class="error" id="step2Error">Please share at least a brief background (50+ characters).</div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="showStep(1)">← Back</button>
+      <button class="btn-next" onclick="goStep(3)">Continue →</button>
+    </div>
+  </section>
+
+  <!-- Step 3: Self-Score Sliders -->
+  <section id="step3" class="step">
+    <h2>Score yourself honestly</h2>
+    <p class="sub">1 = poor fit · 10 = excellent fit. Calibrate to what the JD actually asks for.</p>
+    <div class="tip"><strong>Be honest with yourself.</strong> Inflating won't help you prepare; underselling won't help you decide. Aim for accuracy — the AI will sanity-check you against the JD.</div>
+    <div id="scoringGrid"></div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="showStep(2)">← Back</button>
+      <button class="btn-next" onclick="goStep(4)">Continue →</button>
+    </div>
+  </section>
+
+  <!-- Step 4: Comp & logistics -->
+  <section id="step4" class="step">
+    <h2>Compensation & logistics</h2>
+    <p class="sub">Optional but useful. We use this to flag mismatches and shape the verdict.</p>
+    <div class="row2">
+      <div class="field">
+        <label for="compTarget">Your target total comp (annual, optional)</label>
+        <input id="compTarget" class="input" type="text" placeholder="e.g. $185,000">
+      </div>
+      <div class="field">
+        <label for="compRange">Posted range, if known (optional)</label>
+        <input id="compRange" class="input" type="text" placeholder="e.g. $150K - $180K">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="locFlex">Location / remote requirements</label>
+        <select id="locFlex" class="input">
+          <option value="">— select —</option>
+          <option value="remote_only">Remote-only — I can't relocate or commute</option>
+          <option value="hybrid_ok">Hybrid is fine</option>
+          <option value="onsite_ok">Onsite is fine</option>
+          <option value="willing_relocate">Willing to relocate for the right role</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="urgency">How urgent is this for you?</label>
+        <select id="urgency" class="input">
+          <option value="">— select —</option>
+          <option value="active">Actively job searching — need a role soon</option>
+          <option value="open">Open to the right role, not urgent</option>
+          <option value="curious">Just exploring / dream-role test</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="showStep(3)">← Back</button>
+      <button class="btn-next" onclick="goStep(5)">Continue →</button>
+    </div>
+  </section>
+
+  <!-- Step 5: Email + Generate -->
+  <section id="step5" class="step">
+    <h2>Where should we send it?</h2>
+    <p class="sub">Optional. We'll email you a copy of your assessment so you can revisit it. No spam, ever.</p>
+    <div class="row2">
+      <div class="field">
+        <label for="emailInput">Email (optional)</label>
+        <input id="emailInput" class="input" type="email" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <div class="hint" style="padding-top:14px">We never sell or share your email. Used only to deliver this assessment.</div>
+      </div>
+    </div>
+    <div class="error" id="step5Error">Something went wrong. Please try again.</div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="showStep(4)">← Back</button>
+      <button class="btn-next" onclick="runAnalysis()" style="max-width:280px">Generate my fit assessment →</button>
+    </div>
+    <div class="privacy-bar">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Your job description and background are sent to our AI proxy to generate your assessment, then discarded. Nothing is stored on our servers.
+    </div>
+  </section>
+
+  <!-- Loading -->
+  <div id="loadingCard" class="loading-card">
+    <div class="spinner"></div>
+    <div class="loading-msg">Analyzing your fit…</div>
+    <div class="loading-sub">Parsing the JD, matching your background, drafting your verdict. ~15 seconds.</div>
+  </div>
+
+  <!-- Results -->
+  <div id="results" class="results">
+    <div class="verdict-card">
+      <div class="score-ring">
+        <svg viewBox="0 0 140 140">
+          <circle class="ring-bg" cx="70" cy="70" r="60"></circle>
+          <circle id="ringFill" class="ring-fill" cx="70" cy="70" r="60" stroke-dasharray="376.99" stroke-dashoffset="376.99"></circle>
+        </svg>
+        <div class="score-num"><div class="n" id="scoreNum">0</div><div class="of">/ 100 fit</div></div>
+      </div>
+      <div id="verdictBadge" class="verdict-badge v-yes">— —</div>
+      <div class="verdict-headline" id="verdictHeadline">—</div>
+      <div class="verdict-narrative" id="verdictNarrative">—</div>
+    </div>
+
+    <div class="section-card">
+      <h3>Score breakdown</h3>
+      <div class="dim-grid" id="dimGrid"></div>
+    </div>
+
+    <div class="section-card">
+      <h3>Top gaps to address</h3>
+      <ul class="gap-list" id="gapList"></ul>
+    </div>
+
+    <div class="section-card">
+      <h3>Resume bullet rewrites — bridge your gaps</h3>
+      <div id="bulletList"></div>
+    </div>
+
+    <div class="section-card">
+      <h3>Interview talking points — lean into your strengths</h3>
+      <ul class="talk-list" id="talkList"></ul>
+    </div>
+
+    <div class="section-card">
+      <h3>Recommended next steps</h3>
+      <ul class="step-list" id="stepList"></ul>
+    </div>
+
+    <div class="actions">
+      <button class="btn-secondary" onclick="saveAssessment()">💾 Save this assessment</button>
+      <button class="btn-secondary" onclick="window.print()">🖨 Print / Save as PDF</button>
+      <button class="btn-secondary" onclick="copyShareLink()">🔗 Copy share link</button>
+      <button class="btn-secondary" onclick="resetAll()">↺ Score another role</button>
+    </div>
+    <div id="copiedNote" style="text-align:center; color:var(--green); font-size:13px; margin-top:12px; display:none">Link copied to clipboard.</div>
+  </div>
+
+  <!-- Saved drawer -->
+  <div id="savedDrawer" class="step" style="display:none">
+    <h2>Your saved assessments</h2>
+    <p class="sub">Stored locally in your browser. Compare side-by-side and decide where to focus.</p>
+    <div id="savedList" class="saved-list"></div>
+    <div class="btn-row"><button class="btn-back" onclick="hideSaved()">← Back</button></div>
+  </div>
+
+  <div class="foot-note" style="text-align:center; padding-top:48px">
+    Moonshot Consulting DC · Built for people deciding their next move · <a href="https://moonshotconsultingdc.com" target="_blank">Visit our website →</a>
+  </div>
+</div>
+
+<script>
+/* ── CONFIG ─────────────────────────────────────────── */
+const PROXY_URL = 'https://moonshot-proxy.onrender.com/v1/messages';
+const APPS_SCRIPT_URL = '';  /* set when Mailchimp/Apps Script wired up */
+
+/* ── STATE ──────────────────────────────────────────── */
+const state = {
+  jobTitle:'', company:'', jd:'',
+  yourName:'', yourTitle:'', background:'',
+  strengths:'', concerns:'',
+  scores:[5,5,5,5,5,5],
+  compTarget:'', compRange:'',
+  locFlex:'', urgency:'',
+  email:''
+};
+let currentStep = 0;
+
+const DIMS = [
+  { name:'Experience match',          weight:0.25, guide:'How well does your years/level/domain match what the JD requires?' },
+  { name:'Skills & technical fit',    weight:0.20, guide:'How tightly do your skills, tools, and methods overlap with the JD must-haves?' },
+  { name:'Stage & culture fit',       weight:0.18, guide:'Company stage, working style, pace, team size — do you thrive there?' },
+  { name:'Compensation alignment',    weight:0.12, guide:'Is the posted/expected range realistic for your target?' },
+  { name:'Leadership & soft skills',  weight:0.15, guide:'Communication, influence, leadership presence at this level?' },
+  { name:'Motivation & urgency',      weight:0.10, guide:'How genuinely excited are you about THIS role at THIS company, right now?' }
+];
+
+/* ── BUILD SLIDERS ──────────────────────────────────── */
+function buildSliders(){
+  const grid = document.getElementById('scoringGrid');
+  grid.innerHTML = '';
+  DIMS.forEach((d,i)=>{
+    const card = document.createElement('div');
+    card.className = 'slider-card';
+    card.innerHTML = `
+      <div class="slider-head">
+        <div class="slider-name">${d.name}</div>
+        <div class="slider-weight">Weight: ${Math.round(d.weight*100)}%</div>
+      </div>
+      <div class="slider-guide">${d.guide}</div>
+      <div class="slider-row">
+        <input type="range" min="1" max="10" value="5" id="score_${i}" oninput="onSlider(${i}, this.value)">
+        <span class="slider-val" id="val_${i}">5</span>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+function onSlider(i, v){
+  state.scores[i] = parseInt(v,10);
+  document.getElementById('val_'+i).textContent = v;
+}
+
+/* ── NAV ────────────────────────────────────────────── */
+function startAssessment(){
+  document.getElementById('hero').style.display = 'none';
+  document.getElementById('progressWrap').classList.add('visible');
+  buildSliders();
+  showStep(1);
+}
+function showStep(n){
+  for(let i=1;i<=5;i++) document.getElementById('step'+i).classList.remove('visible');
+  document.getElementById('step'+n).classList.add('visible');
+  updateProgress(n);
+  currentStep = n;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function updateProgress(n){
+  const pct = Math.round(((n-1)/5)*100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = 'Step ' + n + ' of 5';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+function goStep(n){
+  if(n > currentStep && !validateStep(currentStep)) return;
+  showStep(n);
+}
+
+/* ── VALIDATION ─────────────────────────────────────── */
+function validateStep(n){
+  hideError('step'+n+'Error');
+  if(n===1){
+    state.jobTitle = document.getElementById('jobTitle').value.trim();
+    state.company  = document.getElementById('company').value.trim();
+    state.jd       = document.getElementById('jobDescription').value.trim();
+    if(!state.jobTitle || state.jd.length < 50){ showError('step1Error'); return false; }
+  }
+  if(n===2){
+    state.yourName  = document.getElementById('yourName').value.trim();
+    state.yourTitle = document.getElementById('yourTitle').value.trim();
+    state.background= document.getElementById('yourBackground').value.trim();
+    state.strengths = document.getElementById('yourStrengths').value.trim();
+    state.concerns  = document.getElementById('yourConcerns').value.trim();
+    if(state.background.length < 50){ showError('step2Error'); return false; }
+  }
+  if(n===4){
+    state.compTarget = document.getElementById('compTarget').value.trim();
+    state.compRange  = document.getElementById('compRange').value.trim();
+    state.locFlex    = document.getElementById('locFlex').value;
+    state.urgency    = document.getElementById('urgency').value;
+  }
+  if(n===5){
+    state.email = document.getElementById('emailInput').value.trim();
+  }
+  return true;
+}
+function showError(id){ const e=document.getElementById(id); if(e) e.classList.add('visible'); }
+function hideError(id){ const e=document.getElementById(id); if(e) e.classList.remove('visible'); }
+
+/* ── WEIGHTED LOCAL SCORE (fallback if AI fails) ─────── */
+function computeLocalScore(){
+  let w=0; for(let i=0;i<DIMS.length;i++) w += state.scores[i]*DIMS[i].weight;
+  return Math.round(w*10);
+}
+function localVerdict(pct){
+  if(pct>=85) return { key:'strong', cls:'v-strong', headline:'Strong fit — apply with confidence.', narrative:'Your self-assessment shows excellent alignment. Lead with your strengths; the bar for proving fit is low for you.' };
+  if(pct>=70) return { key:'yes',    cls:'v-yes',    headline:'Good fit — worth pursuing.',           narrative:'Solid alignment with a few gaps. Apply, but be strategic about how you frame the weaker dimensions.' };
+  if(pct>=55) return { key:'maybe',  cls:'v-maybe',  headline:'Partial fit — proceed with clear eyes.',narrative:'Real but uneven match. This is a stretch. Worth applying only if you are genuinely excited and willing to do gap work.' };
+  if(pct>=40) return { key:'no',     cls:'v-no',     headline:'Weak fit — not the right move now.',   narrative:'Significant misalignment. Apply only with a strong personal connection or unique angle. Otherwise, focus your energy elsewhere.' };
+  return                    { key:'no', cls:'v-no', headline:'Poor fit — pass on this one.', narrative:'This role appears materially misaligned with your profile right now. Use this as a calibration point for what to look for next.' };
+}
+
+/* ── EMAIL CAPTURE ──────────────────────────────────── */
+async function captureEmail(){
+  if(!APPS_SCRIPT_URL || !state.email) return;
+  try{
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        email: state.email, name: state.yourName,
+        jobTitle: state.jobTitle, company: state.company,
+        timestamp: new Date().toISOString(), source:'job-fit-analyzer'
+      })
     });
+  }catch(e){}
+}
 
-    function generateSelfReport() {
-      var jobTitle = document.getElementById('jobTitle').value.trim() || 'the role';
-      var company = document.getElementById('company').value.trim() || 'the company';
-      var yourName = document.getElementById('yourName').value.trim() || 'You';
-      var yourTitle = document.getElementById('yourTitle').value.trim();
-      var background = document.getElementById('yourBackground').value.trim();
-      var strengthsRaw = (document.getElementById('yourStrengths').value || '').trim().split('\n').filter(function(l){ return l.trim(); });
-      var concernsRaw = (document.getElementById('yourConcerns').value || '').trim().split('\n').filter(function(l){ return l.trim(); });
+/* ── AI ANALYSIS ────────────────────────────────────── */
+async function runAnalysis(){
+  if(!validateStep(5)) return;
+  for(let i=1;i<=5;i++) document.getElementById('step'+i).classList.remove('visible');
+  document.getElementById('progressWrap').classList.remove('visible');
+  document.getElementById('loadingCard').classList.add('visible');
+  await captureEmail();
 
-      var scores = [];
-      for (var i = 0; i < WEIGHTS.length; i++) {
-        scores.push(parseInt(document.getElementById('score_' + i).value, 10));
-      }
+  const dimsForPrompt = DIMS.map((d,i)=>`- ${d.name} (weight ${Math.round(d.weight*100)}%): self-score ${state.scores[i]}/10`).join('\n');
 
-      var weighted = 0;
-      for (var j = 0; j < WEIGHTS.length; j++) {
-        weighted += scores[j] * WEIGHTS[j];
-      }
-      var pct = Math.round(weighted * 10);
+  const prompt = `You are a candid hiring advisor helping a job seeker decide whether to apply for a specific role. You are honest, useful, and never sycophantic. Your job is to help them prepare and decide — not to flatter them.
 
-      var recKey = '';
-      var headerClass = '';
-      var sublabel = '';
-      var nextSteps = '';
+ROLE:
+- Title: ${state.jobTitle}
+- Company: ${state.company || 'not specified'}
+- Job description / requirements:
+${state.jd}
 
-      if (pct >= 85) {
-        recKey = 'strong_yes';
-        headerClass = 'strong-yes';
-        sublabel = 'Your self-assessment shows excellent alignment with ' + jobTitle + ' at ' + company + '.';
-        nextSteps = 'Apply now. Customize your resume to highlight your strongest dimensions. Prepare specific examples for each dimension in your interviews. Your main task is to communicate your fit clearly, not to prove it.';
-      } else if (pct >= 70) {
-        recKey = 'yes';
-        headerClass = 'yes';
-        sublabel = 'You show solid alignment with this role. Worth pursuing.';
-        nextSteps = 'Apply, but be strategic. Identify your 1-2 lowest scores and prepare a clear narrative around them. Lead with your strengths in your application materials and be ready to address gaps directly in interviews.';
-      } else if (pct >= 55) {
-        recKey = 'maybe';
-        headerClass = 'maybe';
-        sublabel = 'Meaningful fit with notable gaps. A stretch role.';
-        nextSteps = 'Consider applying if you are genuinely excited about the role and growth opportunity. Be honest in your application about what you bring and what you are still building. Identify which gaps you can close quickly and which are longer-term. This may not be a slam dunk offer, but it could be the right move.';
-      } else if (pct >= 40) {
-        recKey = 'no';
-        headerClass = 'no';
-        sublabel = 'Significant misalignment. This role may not be right for you now.';
-        nextSteps = 'It may be worth waiting for a better-matched opportunity, or taking specific steps to close the gaps before applying. Review which dimensions scored lowest and consider whether those gaps are bridgeable in 6-12 months. Apply only if you have a compelling personal connection or unique inside insight.';
-      } else {
-        recKey = 'strong_no';
-        headerClass = 'strong-no';
-        sublabel = 'This role appears to be a poor fit based on your self-assessment.';
-        nextSteps = 'Focus your energy on roles where your fit score is higher. Use this assessment to understand which areas need development. Consider speaking with a mentor or coach about your career path relative to this type of role.';
-      }
+CANDIDATE:
+- Name: ${state.yourName || 'not provided'}
+- Current title: ${state.yourTitle || 'not provided'}
+- Background:
+${state.background}
+- Self-described strengths:
+${state.strengths || 'none provided'}
+- Self-described concerns:
+${state.concerns || 'none provided'}
+- Target comp: ${state.compTarget || 'not provided'}
+- Posted range: ${state.compRange || 'not provided'}
+- Location flexibility: ${state.locFlex || 'not provided'}
+- Urgency: ${state.urgency || 'not provided'}
 
-      // Header
-      var header = document.getElementById('resultHeader');
-      header.className = 'result-header ' + headerClass;
-      document.getElementById('resultScore').textContent = pct + '%';
-      document.getElementById('resultLabel').textContent = REC_LABELS[recKey];
-      document.getElementById('resultSublabel').textContent = sublabel;
+CANDIDATE'S OWN SELF-SCORES (calibrate against the JD; correct if obviously over/under):
+${dimsForPrompt}
 
-      // Breakdown
-      var breakGrid = document.getElementById('breakdownGrid');
-      breakGrid.innerHTML = '';
-      for (var k = 0; k < WEIGHTS.length; k++) {
-        var dc = document.createElement('div');
-        dc.className = 'dim-card';
-        var fillPct = Math.round(scores[k] * 10);
-        dc.innerHTML = '<div class="dim-name">' + DIM_NAMES[k] + '</div>' +
-          '<div class="dim-score-row">' +
-            '<div class="dim-bar"><div class="dim-bar-fill" style="width:' + fillPct + '%"></div></div>' +
-            '<div class="dim-score-num">' + scores[k] + '/10</div>' +
-          '</div>';
-        breakGrid.appendChild(dc);
-      }
+Return ONLY valid JSON (no markdown, no backticks) with EXACTLY this structure:
+{
+  "ai_score": <integer 0-100, your honest weighted fit score after sanity-checking the self-scores against the JD>,
+  "ai_dim_scores": [<int 0-10>, <int>, <int>, <int>, <int>, <int>],  // your calibrated scores in the same order: experience, skills, stage_culture, comp, leadership, motivation
+  "verdict_key": "strong" | "yes" | "maybe" | "no",
+  "verdict_headline": <short, decisive headline e.g. "Strong fit — apply this week" or "Stretch role — apply only if you can address X">,
+  "narrative": <2-3 sentence honest assessment, specific to THIS candidate and THIS role>,
+  "must_haves": [<3-6 short strings: must-have requirements you extracted from the JD>],
+  "nice_to_haves": [<2-4 short strings: nice-to-haves from the JD>],
+  "top_gaps": [
+    { "title": <short gap title>, "desc": <1-2 sentence description of the gap>, "fix": <specific, concrete action they can take in the next 1-4 weeks to bridge or reframe this gap> },
+    { "title": ..., "desc": ..., "fix": ... },
+    { "title": ..., "desc": ..., "fix": ... }
+  ],
+  "bullet_rewrites": [
+    { "from": <a likely-current resume bullet inferred from their background>, "to": <a sharper rewrite that bridges to the JD's language with a quantified achievement> },
+    { "from": ..., "to": ... },
+    { "from": ..., "to": ... }
+  ],
+  "talking_points": [
+    { "title": <short title>, "desc": <1-2 sentence interview talking point that leans into their strengths and connects to a JD priority> },
+    { "title": ..., "desc": ... },
+    { "title": ..., "desc": ... }
+  ],
+  "next_steps": [
+    { "title": <short action title>, "desc": <1-2 sentence specific next step> },
+    { "title": ..., "desc": ... },
+    { "title": ..., "desc": ... }
+  ]
+}
 
-      // Strengths
-      var sList = document.getElementById('strengthsList');
-      sList.innerHTML = '';
-      if (strengthsRaw.length) {
-        strengthsRaw.forEach(function(s) {
-          var d = document.createElement('div');
-          d.className = 'sc-item';
-          d.textContent = s;
-          sList.appendChild(d);
-        });
-      } else {
-        sList.innerHTML = '<div class="sc-item" style="color:#9ca3af">No strengths entered</div>';
-      }
+Be specific. Use real numbers and JD language. If the candidate is materially overqualified or underqualified, say so directly in the narrative. If comp is misaligned, surface it in gaps. If urgency is "actively searching" and fit is weak, be especially direct.`;
 
-      // Concerns
-      var cList = document.getElementById('concernsList');
-      cList.innerHTML = '';
-      if (concernsRaw.length) {
-        concernsRaw.forEach(function(c) {
-          var d = document.createElement('div');
-          d.className = 'sc-item';
-          d.textContent = c;
-          cList.appendChild(d);
-        });
-      } else {
-        cList.innerHTML = '<div class="sc-item" style="color:#9ca3af">No concerns entered</div>';
-      }
+  try{
+    const response = await fetch(PROXY_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages:[{role:'user', content: prompt}]
+      })
+    });
+    if(!response.ok) throw new Error('API '+response.status);
+    const data = await response.json();
+    const raw = data.content?.[0]?.text || '';
+    const clean = raw.replace(/\`\`\`json|\`\`\`/g,'').trim();
+    const result = JSON.parse(clean);
+    renderResults(result);
+  }catch(err){
+    console.warn('AI analysis failed, using local fallback:', err);
+    renderResults(buildFallback());
+  }
+}
 
-      // Next steps
-      document.getElementById('nextStepsText').textContent = nextSteps;
+function buildFallback(){
+  const pct = computeLocalScore();
+  const v = localVerdict(pct);
+  const strengthsArr = state.strengths.split('\n').filter(s=>s.trim());
+  const concernsArr  = state.concerns.split('\n').filter(s=>s.trim());
+  return {
+    ai_score: pct,
+    ai_dim_scores: state.scores.slice(),
+    verdict_key: v.key, verdict_headline: v.headline, narrative: v.narrative + ' (Offline scoring — AI service unavailable.)',
+    must_haves: ['See JD for specific must-haves'],
+    nice_to_haves: [],
+    top_gaps: concernsArr.slice(0,3).map(c=>({ title:c, desc:'You flagged this as a concern.', fix:'Prepare a concise 60-second narrative explaining how you will close this gap or why it does not block performance in the role.' })),
+    bullet_rewrites: [],
+    talking_points: strengthsArr.slice(0,3).map(s=>({ title:s, desc:'Lead with this in your application materials and interview answers.' })),
+    next_steps: [
+      { title:'Tailor your resume', desc:'Rewrite your top 3 bullets using the language from the JD.' },
+      { title:'Prepare gap narratives', desc:'For each concern, prepare a 60-second response that acknowledges the gap and shows how you bridge it.' },
+      { title:'Find a warm intro', desc:'Identify someone in your network connected to the company and request a 15-minute conversation before applying.' }
+    ]
+  };
+}
 
-      // Show results
-      document.getElementById('inputSection').style.display = 'none';
-      document.getElementById('results').style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+/* ── RENDER ─────────────────────────────────────────── */
+let lastResult = null;
+function renderResults(r){
+  lastResult = r;
+  document.getElementById('loadingCard').classList.remove('visible');
 
-    function resetForm() {
-      document.getElementById('inputSection').style.display = 'block';
-      document.getElementById('results').style.display = 'none';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  </script>
+  const score = Math.max(0, Math.min(100, r.ai_score|0));
+  document.getElementById('scoreNum').textContent = score;
+
+  const C = 2 * Math.PI * 60;
+  const offset = C - (score/100) * C;
+  setTimeout(()=>{ document.getElementById('ringFill').style.strokeDashoffset = offset; }, 200);
+
+  const ring = document.getElementById('ringFill');
+  if(score >= 70) ring.style.stroke = 'var(--green)';
+  else if(score >= 55) ring.style.stroke = 'var(--accent)';
+  else if(score >= 40) ring.style.stroke = 'var(--yellow)';
+  else ring.style.stroke = 'var(--red)';
+
+  const badgeMap = { strong:'STRONG FIT · APPLY', yes:'GOOD FIT · APPLY', maybe:'STRETCH · APPLY WITH CAVEATS', no:"WEAK FIT · DON'T APPLY" };
+  const cls = { strong:'v-strong', yes:'v-yes', maybe:'v-maybe', no:'v-no' };
+  const k = r.verdict_key in badgeMap ? r.verdict_key : (score>=85?'strong':score>=70?'yes':score>=55?'maybe':'no');
+  const badge = document.getElementById('verdictBadge');
+  badge.textContent = badgeMap[k];
+  badge.className = 'verdict-badge ' + cls[k];
+  document.getElementById('verdictHeadline').textContent = r.verdict_headline || '';
+  document.getElementById('verdictNarrative').textContent = r.narrative || '';
+
+  // Dimensions
+  const dimGrid = document.getElementById('dimGrid');
+  dimGrid.innerHTML = '';
+  const dimScores = (r.ai_dim_scores && r.ai_dim_scores.length===6) ? r.ai_dim_scores : state.scores;
+  DIMS.forEach((d,i)=>{
+    const s = Math.max(0, Math.min(10, dimScores[i]|0));
+    const row = document.createElement('div');
+    row.className = 'dim-row';
+    row.innerHTML = `<div class="dim-label">${d.name}</div><div class="dim-bar"><div class="dim-bar-fill" style="width:${s*10}%"></div></div><div class="dim-num">${s}/10</div>`;
+    dimGrid.appendChild(row);
+  });
+
+  // Gaps
+  const gapList = document.getElementById('gapList');
+  gapList.innerHTML = '';
+  (r.top_gaps||[]).forEach(g=>{
+    const li = document.createElement('li');
+    li.className = 'gap-item';
+    li.innerHTML = `<div class="title">${escapeHtml(g.title||'')}</div><div class="desc">${escapeHtml(g.desc||'')}</div>${g.fix?`<div class="fix"><strong>How to bridge:</strong> ${escapeHtml(g.fix)}</div>`:''}`;
+    gapList.appendChild(li);
+  });
+
+  // Bullet rewrites
+  const bl = document.getElementById('bulletList');
+  bl.innerHTML = '';
+  (r.bullet_rewrites||[]).forEach(b=>{
+    const div = document.createElement('div');
+    div.className = 'bullet-rewrite';
+    div.innerHTML = `<div class="from">${escapeHtml(b.from||'')}</div><div class="to">${escapeHtml(b.to||'')}</div>`;
+    bl.appendChild(div);
+  });
+  if(!(r.bullet_rewrites||[]).length){
+    bl.innerHTML = '<div class="dim-row" style="color:var(--muted); font-size:14px">No rewrites generated.</div>';
+  }
+
+  // Talking points
+  const tl = document.getElementById('talkList');
+  tl.innerHTML = '';
+  (r.talking_points||[]).forEach(t=>{
+    const li = document.createElement('li');
+    li.className = 'talk-item';
+    li.innerHTML = `<div class="title">${escapeHtml(t.title||'')}</div><div class="desc">${escapeHtml(t.desc||'')}</div>`;
+    tl.appendChild(li);
+  });
+
+  // Next steps
+  const sl = document.getElementById('stepList');
+  sl.innerHTML = '';
+  (r.next_steps||[]).forEach(s=>{
+    const li = document.createElement('li');
+    li.className = 'step-item';
+    li.innerHTML = `<div class="title">${escapeHtml(s.title||'')}</div><div class="desc">${escapeHtml(s.desc||'')}</div>`;
+    sl.appendChild(li);
+  });
+
+  document.getElementById('results').classList.add('visible');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ── SAVE / COMPARE / SHARE ─────────────────────────── */
+const SAVE_KEY = 'moonshot_fit_saved_v1';
+function loadSaved(){
+  try{ return JSON.parse(localStorage.getItem(SAVE_KEY) || '[]'); }catch(e){ return []; }
+}
+function persistSaved(arr){ localStorage.setItem(SAVE_KEY, JSON.stringify(arr)); }
+
+function saveAssessment(){
+  if(!lastResult) return;
+  const saved = loadSaved();
+  saved.unshift({
+    id: Date.now(),
+    when: new Date().toLocaleDateString(),
+    jobTitle: state.jobTitle, company: state.company,
+    score: lastResult.ai_score, verdict: lastResult.verdict_key,
+    headline: lastResult.verdict_headline
+  });
+  persistSaved(saved.slice(0,20));
+  alert('Saved. View saved assessments from the homepage.');
+}
+
+function showSaved(){
+  const drawer = document.getElementById('savedDrawer');
+  document.getElementById('hero').style.display = 'none';
+  document.getElementById('progressWrap').classList.remove('visible');
+  for(let i=1;i<=5;i++) document.getElementById('step'+i).classList.remove('visible');
+  document.getElementById('results').classList.remove('visible');
+  const list = document.getElementById('savedList');
+  const saved = loadSaved();
+  if(!saved.length){ list.innerHTML = '<div class="dim-row" style="color:var(--muted); font-size:14px; padding:20px 0">No saved assessments yet. Run one and click "Save this assessment" on the results page.</div>'; }
+  else{
+    list.innerHTML = '';
+    saved.forEach(s=>{
+      const row = document.createElement('div');
+      row.className = 'saved-row';
+      row.innerHTML = `<div><div><strong>${escapeHtml(s.jobTitle||'(role)')}${s.company?' · '+escapeHtml(s.company):''}</strong></div><div class="meta">${s.when} · ${escapeHtml(s.headline||'')}</div></div><div style="display:flex; gap:14px; align-items:center"><span class="pct">${s.score}/100</span><button title="Delete" onclick="deleteSaved(${s.id})">✕</button></div>`;
+      list.appendChild(row);
+    });
+  }
+  drawer.style.display = 'block';
+  drawer.classList.add('visible');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function hideSaved(){
+  const d = document.getElementById('savedDrawer');
+  d.classList.remove('visible');
+  d.style.display = 'none';
+  document.getElementById('hero').style.display = 'block';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function deleteSaved(id){
+  persistSaved(loadSaved().filter(s=>s.id!==id));
+  showSaved();
+}
+
+function copyShareLink(){
+  const url = window.location.href.split('?')[0];
+  navigator.clipboard.writeText(url).then(()=>{
+    const n = document.getElementById('copiedNote');
+    n.style.display = 'block';
+    setTimeout(()=>{ n.style.display = 'none'; }, 2500);
+  });
+}
+
+function resetAll(){
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('hero').style.display = 'block';
+  document.getElementById('progressWrap').classList.remove('visible');
+  for(let i=1;i<=5;i++) document.getElementById('step'+i).classList.remove('visible');
+  // Clear inputs
+  ['jobTitle','company','jobDescription','yourName','yourTitle','yourBackground','yourStrengths','yourConcerns','compTarget','compRange','emailInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['locFlex','urgency'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  Object.assign(state, { jobTitle:'', company:'', jd:'', yourName:'', yourTitle:'', background:'', strengths:'', concerns:'', scores:[5,5,5,5,5,5], compTarget:'', compRange:'', locFlex:'', urgency:'', email:'' });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// Build sliders on first paint so they're ready when step 3 appears
+buildSliders();
+</script>
 </body>
 </html>

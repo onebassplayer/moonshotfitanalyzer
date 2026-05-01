@@ -38,9 +38,10 @@ body::before{
              radial-gradient(ellipse at bottom left, rgba(76,175,130,0.06), transparent 55%);
 }
 .wrap{position:relative; z-index:1; max-width:920px; margin:0 auto; padding:32px 20px 80px}
-.brand{display:flex; align-items:center; gap:12px; margin-bottom:8px}
-.brand img{width:40px; height:40px; border-radius:8px; object-fit:cover}
-.brand-eyebrow{font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); font-weight:600}
+.brand{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:8px; flex-wrap:wrap}
+.brand img{height:48px; width:auto; max-width:240px; display:block}
+.brand-eyebrow{font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); font-weight:600; text-align:right}
+@media(max-width:560px){ .brand{justify-content:center} .brand-eyebrow{text-align:center; width:100%} }
 .hero{text-align:center; padding:48px 20px 32px}
 .hero h1{
   font-family:'DM Sans',sans-serif; font-weight:700;

@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
 <style>
 :root{
   --bg:#1a1f2e; --bg2:#222736; --bg3:#2a3045;
@@ -76,6 +77,15 @@ body::before{
 .field{margin-bottom:18px}
 .field label{display:block; font-size:13px; font-weight:600; color:var(--text); margin-bottom:6px; letter-spacing:0.02em}
 .field .hint{font-size:12px; color:var(--muted); margin-bottom:6px}
+.upload-zone{display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:14px; background:var(--bg3); border:1.5px dashed var(--border); border-radius:10px; margin-bottom:10px; transition:all var(--transition)}
+.upload-zone:hover{border-color:var(--accent-dim); background:#303652}
+.upload-zone.dragover{border-color:var(--accent); background:rgba(102,126,234,0.12)}
+.upload-zone label{display:inline-flex; align-items:center; gap:8px; padding:9px 16px; background:var(--accent); color:#fff; border-radius:6px; cursor:pointer; font-size:14px; font-weight:600; margin:0; transition:background var(--transition)}
+.upload-zone label:hover{background:var(--accent-dim)}
+.upload-zone input[type=file]{display:none}
+.upload-status{font-size:13px; color:var(--muted); flex:1; min-width:180px}
+.upload-status.success{color:var(--green)}
+.upload-status.error{color:var(--red)}
 .input, .textarea, select.input{
   width:100%; background:var(--bg3); color:var(--text);
   border:1px solid var(--border); border-radius:8px;
@@ -292,9 +302,13 @@ body::before{
       </div>
     </div>
     <div class="field">
-      <label for="yourBackground">Your background — paste your resume or summarize</label>
-      <div class="hint">Years of experience, key roles, domains, technologies, achievements with numbers.</div>
-      <textarea id="yourBackground" class="textarea" rows="8" placeholder="e.g. 8 years in B2B SaaS product management. Led 0-to-1 launch at Series A startup that grew to $4M ARR. Previously PM at mid-market HR tech. Strong in user research, roadmap prioritization, and working with eng teams. MBA from Kellogg..."></textarea>
+      <label for="yourBackground">Your background — upload your resume or paste it</label>
+      <div class="hint">Upload a PDF or DOCX and we'll extract the text automatically. Nothing leaves your browser during parsing.</div>
+      <div class="upload-zone" id="uploadZone">
+        <label for="resumeFile">📄 Choose resume (PDF or DOCX)<input type="file" id="resumeFile" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></label>
+        <span class="upload-status" id="uploadStatus">Or drag a file here · or paste text below</span>
+      </div>
+      <textarea id="yourBackground" class="textarea" rows="8" placeholder="Paste resume text here, or upload a file above. Years of experience, key roles, domains, technologies, achievements with numbers..."></textarea>
     </div>
     <div class="row2">
       <div class="field">
@@ -462,7 +476,7 @@ body::before{
 
 <script>
 /* ── CONFIG ─────────────────────────────────────────── */
-const PROXY_URL = 'https://moonshot-proxy.onrender.com/v1/messages';
+const PROXY_URL = 'https://moonshot-proxy.onrender.com/proxy';
 const APPS_SCRIPT_URL = '';  /* set when Mailchimp/Apps Script wired up */
 
 /* ── STATE ──────────────────────────────────────────── */
@@ -877,6 +891,77 @@ function resetAll(){
 
 // Build sliders on first paint so they're ready when step 3 appears
 buildSliders();
+
+/* ── RESUME UPLOAD (PDF / DOCX) ─────────────────────── */
+(function initResumeUpload(){
+  const fileInput = document.getElementById('resumeFile');
+  const status    = document.getElementById('uploadStatus');
+  const zone      = document.getElementById('uploadZone');
+  const target    = document.getElementById('yourBackground');
+  if(!fileInput || !target) return;
+
+  let pdfjsReady = null;
+  async function getPdfJs(){
+    if(pdfjsReady) return pdfjsReady;
+    pdfjsReady = (async()=>{
+      const m = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.min.mjs');
+      m.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.worker.min.mjs';
+      return m;
+    })();
+    return pdfjsReady;
+  }
+  function setStatus(msg, kind){ status.textContent = msg; status.className = 'upload-status' + (kind ? ' ' + kind : ''); }
+
+  async function parsePdf(file){
+    const buf = await file.arrayBuffer();
+    const pdfjs = await getPdfJs();
+    const doc = await pdfjs.getDocument({data: buf}).promise;
+    let out = '';
+    const pages = Math.min(doc.numPages, 10);
+    for(let i=1; i<=pages; i++){
+      const p = await doc.getPage(i);
+      const tc = await p.getTextContent();
+      out += tc.items.map(it => it.str).join(' ') + '\n\n';
+    }
+    return out.trim();
+  }
+  async function parseDocx(file){
+    if(!window.mammoth) throw new Error('Mammoth library failed to load');
+    const buf = await file.arrayBuffer();
+    const r = await window.mammoth.extractRawText({arrayBuffer: buf});
+    return (r.value || '').trim();
+  }
+  async function handleFile(file){
+    if(!file) return;
+    if(file.size > 5 * 1024 * 1024){ setStatus('File too large (max 5MB).', 'error'); return; }
+    const name = file.name.toLowerCase();
+    setStatus('Parsing ' + file.name + '…');
+    try{
+      let text = '';
+      if(name.endsWith('.pdf') || file.type === 'application/pdf'){
+        text = await parsePdf(file);
+      } else if(name.endsWith('.docx') || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'){
+        text = await parseDocx(file);
+      } else {
+        setStatus('Unsupported file type. Please upload a PDF or DOCX.', 'error');
+        return;
+      }
+      text = text.replace(/\u00a0/g, ' ').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+      if(text.length < 30){ setStatus('Could not extract text — try pasting it manually.', 'error'); return; }
+      const existing = target.value.trim();
+      target.value = existing ? existing + '\n\n' + text : text;
+      target.dispatchEvent(new Event('input', {bubbles:true}));
+      setStatus('✓ Loaded ' + file.name + ' (' + text.length.toLocaleString() + ' chars). Edit below as needed.', 'success');
+    }catch(err){
+      console.error(err);
+      setStatus('Could not parse this file. Please paste your resume text manually.', 'error');
+    }
+  }
+  fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+  ['dragenter','dragover'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); zone.classList.add('dragover'); }));
+  ['dragleave','drop'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); zone.classList.remove('dragover'); }));
+  zone.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if(f){ fileInput.files = e.dataTransfer.files; handleFile(f); } });
+})();
 </script>
 </body>
 </html>
